@@ -1,0 +1,78 @@
+Maximum Sum In Subarray
+
+
+
+#include<bits/stdc++.h>
+using namespace std;
+struct node
+{
+    int maxprefixsum;
+    int maxsuffixsum;
+    int totalsum;
+    int subarraysum;
+};
+void construct(int *arr,node *tree,int start,int end,int treeindex)
+{
+    if(start==end)
+    {
+        tree[treeindex].maxprefixsum=arr[start];
+        tree[treeindex].maxsuffixsum=arr[start];
+        tree[treeindex].totalsum=arr[start];
+        tree[treeindex].subarraysum=arr[start];
+        return;
+    }
+    int mid=(start+end)/2;
+    construct(arr,tree,start,mid,2*treeindex);
+    construct(arr,tree,mid+1,end,2*treeindex+1);
+    node left=tree[2*treeindex];
+    node right=tree[2*treeindex+1];
+    tree[treeindex].maxprefixsum=max(left.maxprefixsum,left.totalsum+right.maxprefixsum);
+    tree[treeindex].maxsuffixsum=max(right.maxsuffixsum,right.totalsum+left.maxsuffixsum);
+    tree[treeindex].totalsum=left.totalsum+right.totalsum;
+    tree[treeindex].subarraysum=max(max(left.subarraysum,right.subarraysum),left.maxsuffixsum+right.maxprefixsum);
+  
+}
+node quary(int *arr,node *tree,int start,int end,int treeindex,int left,int right)
+{
+    if(left>end||right<start)
+    {
+        node temp;
+        temp.maxprefixsum=-99999;
+        temp.maxsuffixsum=-99999;
+        temp.totalsum=-99999;
+        temp.subarraysum=-99999;
+        return temp;
+    }
+    if(start>=left&&end<=right)
+        return tree[treeindex];
+    int mid=(start+end)/2;
+    node left1=quary(arr,tree,start,mid,2*treeindex,left,right);
+    node right1=quary(arr,tree,mid+1,end,2*treeindex+1,left,right);
+    node temp2;
+     temp2.maxprefixsum=max(left1.maxprefixsum,left1.totalsum+right1.maxprefixsum);
+    temp2.maxsuffixsum=max(right1.maxsuffixsum,right1.totalsum+left1.maxsuffixsum);
+    temp2.totalsum=left1.totalsum+right1.totalsum;
+    temp2.subarraysum=max(max(left1.subarraysum,right1.subarraysum),left1.maxsuffixsum+right1.maxprefixsum);
+    return temp2;
+}
+int main() {
+
+    int n;
+    cin>>n;
+    int arr[n];
+    for(int i=0;i<n;i++)
+        cin>>arr[i];
+    node *tree=new node[4*n];
+	construct(arr,tree,0,n-1,1);
+    int m;
+    cin>>m;
+    while(m--)
+    {
+        int left,right;
+        cin>>left>>right;
+        node ans=quary(arr,tree,0,n-1,1,left-1,right-1);
+        cout<<ans.subarraysum<<endl;
+    }
+}
+
+
